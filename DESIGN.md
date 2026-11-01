@@ -113,16 +113,16 @@ At 390×844 and 360×740 the photograph is capped near 60svh, so the name, role 
 | No personal contact number, no street, no unredacted cover or thank-you renders | Copy, images, JSON-LD; redacted PDF kept for download |
 | Fifth project removed, no placeholder slot | Not in the nav, the grid, or the script |
 | No invented awards, clients or quotes | Copy trimmed from the brief and the portfolio text |
-| Illustration Instagram kept as a small secondary link | Footer and the illustration section, labelled “Illustration Instagram” |
+| Illustration Instagram kept as a small secondary link | Footer, the contact block, and `/illustration/`, labelled “Illustration Instagram” |
 | Film slot, click-to-load, hidden while `data-video-src` is empty | `parasomnia/index.html`, `js/video.js` loaded only when a source is set |
 | `janukiphoto.png` unused, with a note | Comments in `index.html`, `parasomnia/index.html`, and this file’s sibling README |
-| Home: hero, selected work, about, illustration, tech packs, contact | `index.html` |
-| Hero: name, role, one line, one image, “View work” | Hero section, Parasomnia backlight photograph |
+| Home: hero, selected work, short about, teasers, contact | `index.html`. Full about, illustration and tech packs are their own pages |
+| Hero: name, role, one line, one image, “View work” | Hero section, Parasomnia backlight photograph layered under the display name |
 | Project index with large cards, title, one-line concept, tag | `.work-grid` |
-| About: bio, photo, chips, PDF | `#about` |
+| About: bio, photo, chips, PDF | `/about/`. Home keeps two sentences, the portrait and a link |
 | Contact headline is “Fashion, for me, begins with meaning.” | `#contact` |
 | Email, LinkedIn, Behance | Contact list, footer, and the form which opens a mailto |
-| One page per project, clean URLs | `/parasomnia/`, `/sacred-skin/`, `/cosmic-heirloom/`, `/editorial-styling/` |
+| One page per project, clean URLs | `/parasomnia/`, `/sacred-skin/`, `/cosmic-heirloom/`, `/editorial-styling/`, plus `/about/`, `/illustration/`, `/tech-packs/` |
 | Process sections and next project | Each project page |
 | Parasomnia project hero is the site hero (burgundy backlight). The home card uses a different final, hands to the face. Sacred Skin hero is the fringed hat. Cosmic hero is the back view | Image slots named in those pages |
 | Research boards are full-width and open in the lightbox | Project research sections |
@@ -146,4 +146,16 @@ At 390×844 and 360×740 the photograph is capped near 60svh, so the name, role 
 | LCP image preloaded, critical font preloaded, JS deferred as a module, lightbox and film loaded on demand | Document heads, `js/main.js` |
 | Unique titles and descriptions, Open Graph image per page, favicon, Person data, sitemap, robots | Head of each page, `images/og/`, `sitemap.xml`, `robots.txt` |
 | `.nojekyll` kept | Repository root |
-| Commented image slots and an edit guide | HTML comments, README |
+| Commented image slots and an edit guide | HTML comments, README. Cosmic, editorial, illustration and tech-pack pictures are marked `placeholder from PDF, replace with Drive original` |
+
+## 5. Nov 2026 revision
+
+This pass supersedes the home wireframe in section 2. The landing page is the main points only.
+
+Home keeps the Parasomnia photograph, four project cards, a two-sentence about with the portrait, one small teaser each for illustration and tech packs, the contact block (including the illustration Instagram link and the redacted PDF) and the footer. The three-paragraph biography, practice chips and tool chips moved to `/about/`. The ten-image gallery moved to `/illustration/`. Both tech-pack spreads moved to `/tech-packs/`. Each new page uses the project-page header, thread, hero, in-page links and footer, with its own title, description, canonical URL and Open Graph tags, and each is listed in `sitemap.xml`.
+
+The hero sets “Januki De Silva” in the display serif in the left column, fully readable and clear of the fixed header. The text block is centred against the photograph, which fills the right side. The outlined “Work” word is not used on the home page, because it sat on top of the selected-work heading. Selected work is four equal portrait cards. Each card has a number, the title, a category in letter-spaced small caps, and one sentence. Home sections stay on a heading or a single line, apart from the two about sentences and the contact block, which is unchanged.
+
+Cosmic Heirloom, Editorial Styling, illustration and tech-pack files are still the temporary PDF extracts. Nothing new was added and nothing was re-extracted. Each of those `<picture>` blocks carries the comment `placeholder from PDF, replace with Drive original`. Layout width is capped at the file’s pixel width, and `sizes` uses that same cap, so a small extract is not stretched on a wide screen.
+
+Motion added here is a few pixels of scroll parallax on the hero and the portrait, transform only, a short clip-path reveal on the project-card pictures, and the ease `cubic-bezier(0.22, 1, 0.36, 1)`. `prefers-reduced-motion: reduce` removes the parallax, the clip and the transitions. The stitched thread, the hiding header, the lightbox and the horizontal lookbook are unchanged.

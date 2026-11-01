@@ -27,7 +27,7 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preload" href="/fonts/f8.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" as="image" href="/images/cosmic/braids-480.avif" imagesrcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" imagesizes="(min-width: 800px) 42vw, 100vw" type="image/avif" fetchpriority="high">
+  <link rel="preload" as="image" href="/images/cosmic/braids-480.avif" imagesrcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" imagesizes="(min-width: 800px) min(42vw, 532px), min(100vw, 532px)" type="image/avif" fetchpriority="high">
 <!-- site-css:start -->
 <style>
 /* Self-hosted, subset, free fonts. Two families only.
@@ -73,7 +73,8 @@
 
 /* Januki De Silva — portfolio
    Neutral paper and ink. Project accents are set on the body.
-   Motion uses transform and opacity only. */
+   Motion uses transform and opacity, plus a short clip-path
+   reveal on pictures. Scroll parallax is transform only. */
 
 :root {
   --paper: #f3eee6;
@@ -103,6 +104,7 @@
   --text-h2: clamp(2.1rem, 1.4rem + 2.2vw, 3.4rem);
   --text-h1: clamp(2.7rem, 1.15rem + 6.4vw, 6.25rem);
   --measure: 38rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
@@ -370,7 +372,8 @@ figcaption,
   font-weight: 400;
 }
 
-.site-nav a[aria-current="true"] {
+.site-nav a[aria-current="true"],
+.site-nav a[aria-current="page"] {
   background-image: linear-gradient(90deg, var(--ink) 45%, transparent 0);
   background-size: 7px 1px;
   background-repeat: repeat-x;
@@ -397,23 +400,25 @@ figcaption,
 }
 
 /* Hero
-   Mobile keeps the photograph near 60svh so the name, role and
-   View work sit in the first screen. Desktop caps it near 85vh
-   and centres a larger name beside it, leaving a peek of work. */
+   The display name sits on the paper and the photograph overlaps it.
+   Mobile keeps the photograph near 52svh so the name, role, one line
+   and View work stay in the first screen. */
 .hero {
-  --hero-h: min(60svh, calc(100svh - var(--header) - 18rem));
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--s-3);
-  padding-bottom: var(--s-2);
+  width: 100%;
+  padding-bottom: var(--s-4);
+  overflow: clip;
 }
 
 .hero-media {
+  position: relative;
   background: var(--tone, #351a0f);
   overflow: hidden;
   width: 100%;
-  height: var(--hero-h);
-  max-height: 60svh;
+  height: min(52svh, 24rem);
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 0 90%);
 }
 
 .hero-media picture,
@@ -425,9 +430,24 @@ figcaption,
   object-position: center 16%;
 }
 
-.hero-copy {
+.hero-stack {
   width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
+  margin-top: -1.15rem;
+}
+
+.hero-name {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(3.5rem, 16.5vw, 5.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  padding-left: 0.06em;
+}
+
+.hero-name span {
+  display: block;
 }
 
 .hero-copy .eyebrow {
@@ -438,23 +458,7 @@ figcaption,
   margin-bottom: 0;
 }
 
-.hero-copy h1 {
-  line-height: 0.9;
-}
-
-.hero-copy h1 span {
-  display: block;
-}
-
-.hero .btn { margin-top: var(--s-3); }
-
-.hero-credit {
-  margin: var(--s-3) 0 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
+.hero .btn { margin-top: var(--s-4); }
 
 /* Buttons and chips */
 .btn,
@@ -477,7 +481,7 @@ figcaption,
   font-size: var(--text-sm);
   font-weight: 400;
   cursor: pointer;
-  transition: transform 200ms ease-out, background-color 200ms ease-out, color 200ms ease-out;
+  transition: transform 200ms var(--ease), background-color 200ms var(--ease), color 200ms var(--ease);
 }
 
 .btn:hover,
@@ -560,18 +564,23 @@ figcaption,
 .work-card .frame {
   overflow: hidden;
   background: var(--tone, var(--paper-2));
+  width: min(100%, var(--w, 100%));
+  margin-inline: auto;
+  aspect-ratio: 3 / 4;
 }
 
 .work-card .frame picture,
 .work-card .frame img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
 }
 
 .work-card img {
   transform: scale(1);
-  transition: transform 450ms ease-out;
+  transition: transform 450ms var(--ease);
 }
 
 .work-card:hover img,
@@ -585,9 +594,17 @@ figcaption,
   padding-top: var(--s-3);
 }
 
+.work-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
 .work-meta strong {
   font-family: var(--serif);
-  font-size: clamp(1.8rem, 1.3rem + 1.4vw, 2.6rem);
+  font-size: clamp(1.55rem, 1.15rem + 1.1vw, 2.35rem);
   font-weight: 600;
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -607,7 +624,7 @@ figcaption,
   font-weight: 400;
   transform: translateY(6px);
   opacity: 0;
-  transition: transform 280ms ease-out, opacity 280ms ease-out;
+  transition: transform 280ms var(--ease), opacity 280ms var(--ease);
 }
 
 @media (hover: none) {
@@ -661,6 +678,97 @@ figcaption,
   background: var(--tone, #6a6668);
 }
 
+.portrait-arch {
+  border-radius: 999px 999px 0 0;
+  overflow: hidden;
+  width: min(100%, var(--w, 28rem));
+  aspect-ratio: 3 / 4;
+  background: var(--tone, #6a6668);
+}
+
+.portrait-arch picture,
+.portrait-arch img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+}
+
+/* Small links off the landing page. The frame stays at or under the file's width. */
+.section-tight {
+  padding-top: var(--s-7);
+  padding-bottom: var(--s-7);
+}
+
+.teaser-grid {
+  display: grid;
+  gap: var(--s-5);
+}
+
+.teaser {
+  display: grid;
+  grid-template-columns: 5.75rem minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: center;
+  min-height: 44px;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+}
+
+.teaser-grid .teaser:last-child {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--s-4);
+}
+
+.teaser .frame {
+  width: min(5.75rem, var(--w, 5.75rem));
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--tone, var(--paper-2));
+}
+
+.teaser .frame picture,
+.teaser .frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.teaser-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.teaser-copy .work-tag { color: var(--accent); }
+
+.teaser strong {
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 1.1rem + 0.6vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+/* Keep a picture at or under the pixel width of its largest file. */
+.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
+}
+
+.project-hero .frame.bounded {
+  justify-self: end;
+}
+
+.gallery .bounded,
+.tech-grid .bounded {
+  justify-self: center;
+}
+
 .portrait figcaption,
 .frame figcaption,
 .shot-figure figcaption {
@@ -694,7 +802,19 @@ figcaption,
   width: 100%;
   height: auto;
   transform: scale(1);
-  transition: transform 400ms ease-out;
+  transition: transform 400ms var(--ease);
+}
+
+.shot.bounded,
+figure.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.frame.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
 }
 
 .shot:hover img,
@@ -867,7 +987,8 @@ figcaption,
 }
 
 .lookbook-track li {
-  flex: 0 0 min(78%, 26rem);
+  flex: 0 0 min(78%, 26rem, var(--w, 80rem));
+  max-width: min(78%, 26rem, var(--w, 80rem));
   scroll-snap-align: start;
   min-width: 0;
 }
@@ -1052,19 +1173,19 @@ dialog.lightbox::backdrop {
   padding: var(--s-8) 0;
 }
 
-.js [data-reveal] {
+/* Hidden only after JS marks a block .is-armed. Without that class the
+   copy and pictures stay at full ink, including when JS never runs. */
+.is-armed:not(.is-in) {
   opacity: 0;
   transform: translateY(16px);
 }
 
-.js [data-reveal].is-in {
+.is-armed.is-in {
   opacity: 1;
   transform: none;
-  transition: opacity 420ms ease-out, transform 420ms ease-out;
+  clip-path: inset(0);
+  transition: opacity 460ms var(--ease), transform 460ms var(--ease), clip-path 520ms var(--ease);
 }
-
-.js [data-reveal].is-in:nth-child(2) { transition-delay: 60ms; }
-.js [data-reveal].is-in:nth-child(3) { transition-delay: 120ms; }
 
 @media (min-width: 720px) {
   .gallery { grid-template-columns: 1fr 1fr; }
@@ -1075,6 +1196,8 @@ dialog.lightbox::backdrop {
   .project-hero { grid-template-columns: 0.9fr 1.1fr; align-items: end; }
   .project-hero .frame { order: 0; }
   .about-grid { grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.2fr); }
+  .teaser-grid { grid-template-columns: 1fr 1fr; gap: var(--s-6); align-items: stretch; }
+  .teaser { border-bottom: 1px solid var(--line); padding-bottom: var(--s-4); }
 }
 
 @media (min-width: 800px) {
@@ -1091,55 +1214,80 @@ dialog.lightbox::backdrop {
   }
   .thread { display: block; }
   .hero {
-    --hero-h: min(85vh, calc(100svh - var(--header) - 9.25rem));
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-columns: minmax(16rem, 40rem) minmax(16rem, 1fr);
+    column-gap: clamp(1.25rem, 2.5vw, 2.5rem);
     align-items: center;
-    gap: clamp(1.5rem, 3vw, 3.5rem);
-    width: min(90rem, calc(100% - 3rem));
+    width: calc(100% - 3rem);
     margin-inline: auto;
-    min-height: 0;
-    padding: 0.75rem 0 0.5rem;
+    min-height: calc(100svh - var(--header));
+    padding: clamp(1.35rem, 3.2vh, 2.4rem) 0 clamp(1rem, 2vh, 1.75rem);
+    overflow: visible;
+  }
+  .hero-stack {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    align-self: center;
+  }
+  .hero-name {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    padding-top: 0.08em;
+    padding-left: 0.06em;
+    padding-right: 0.08em;
+    container-type: inline-size;
+  }
+  .hero-name span {
+    display: block;
+    white-space: nowrap;
+    /* The span queries the heading, so “De Silva” stays inside the column. */
+    font-size: clamp(3.6rem, 28cqi, 9.5rem);
   }
   .hero-media {
-    width: min(100%, calc(var(--hero-h) * 1365 / 2048));
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: min(calc(100svh - var(--header) - 3.5rem), 82vh);
     max-width: 100%;
-    min-width: 0;
-    height: auto;
-    max-height: var(--hero-h);
+    max-height: none;
     aspect-ratio: 1365 / 2048;
     justify-self: end;
     align-self: center;
-    order: 2;
+    clip-path: none;
+    margin: 0;
+  }
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8%;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+    pointer-events: none;
   }
   .hero-copy {
-    width: auto;
-    min-width: 0;
-    margin: 0;
-    order: 1;
+    position: relative;
+    z-index: 2;
+    width: min(34rem, 100%);
+    margin: var(--s-4) 0 0;
     padding-bottom: 0;
-    align-self: center;
-  }
-  .hero-copy h1 {
-    font-size: clamp(4.25rem, 1.4rem + 6.6vw, 9.25rem);
-    line-height: 0.86;
-    letter-spacing: -0.035em;
-    /* The J in Cormorant sits left of its box. Keep the ink inside the column. */
-    padding-left: 0.08em;
   }
   .work-section { padding-top: var(--s-6); }
   .work-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: var(--s-7) var(--s-6);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-6) var(--s-4);
     align-items: start;
-  }
-  .work-card:first-child { grid-row: span 2; }
-  .work-card:last-child { grid-column: 1 / -1; }
-  .work-card:last-child a {
-    display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
-    gap: var(--s-5);
-    align-items: end;
   }
 }
 
@@ -1180,7 +1328,9 @@ dialog.lightbox::backdrop {
     animation: none !important;
     transition: none !important;
   }
-  .js [data-reveal] { opacity: 1; transform: none; }
+  .is-armed:not(.is-in),
+  .is-armed.is-in { opacity: 1; transform: none; clip-path: none; }
+  [data-parallax] { transform: none !important; }
   .thread path { stroke-dashoffset: 0 !important; }
   .lookbook-track { scroll-snap-type: none; scroll-behavior: auto; }
   .view-line { opacity: 1; transform: none; }
@@ -1190,6 +1340,12 @@ dialog.lightbox::backdrop {
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
+  }
+  .is-armed[data-clip]:not(.is-in) { clip-path: inset(12% 0 0 0); }
+  .hero-media img[data-parallax],
+  .portrait-arch img[data-parallax] {
+    transform: scale(1.08);
+    transform-origin: center 18%;
   }
 }
 </style>
@@ -1215,12 +1371,12 @@ dialog.lightbox::backdrop {
   <header class="site-header">
     <a class="logo" href="/#top">Januki De Silva</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav id="site-nav" class="site-nav" aria-label="Sections">
-      <a href="/#work" data-nav="work">Work</a>
-      <a href="/#about" data-nav="about">About</a>
-      <a href="/#illustration" data-nav="illustration">Illustration</a>
-      <a href="/#tech-packs" data-nav="tech-packs">Tech packs</a>
-      <a href="/#contact" data-nav="contact">Contact</a>
+    <nav id="site-nav" class="site-nav" aria-label="Primary">
+      <a href="/#work">Work</a>
+      <a href="/about/">About</a>
+      <a href="/illustration/">Illustration</a>
+      <a href="/tech-packs/">Tech packs</a>
+      <a href="/#contact">Contact</a>
     </nav>
   </header>
   <main id="main">
@@ -1243,11 +1399,12 @@ dialog.lightbox::backdrop {
         <a href="#finals" data-nav="finals">Final collection</a>
       </nav>
         </div>
-        <figure class="frame" style="--tone:#a7a2b2">
+        <figure class="bounded frame" style="--w: 532px; --tone:#a7a2b2">
+          <!-- placeholder from PDF, replace with Drive original -->
           <picture>
-            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 720px) 42vw, 100vw">
-            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 720px) 42vw, 100vw">
-            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 720px) 42vw, 100vw" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." fetchpriority="high" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 720px) min(42vw, 532px), min(100vw, 532px)">
+            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 720px) min(42vw, 532px), min(100vw, 532px)">
+            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 720px) min(42vw, 532px), min(100vw, 532px)" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." fetchpriority="high" decoding="async">
           </picture>
         </figure>
       </header>
@@ -1270,11 +1427,12 @@ dialog.lightbox::backdrop {
             <p>The research board is a collage of Afrofuturist references and Otomi Tenango embroidery. Open it to see the whole board.</p>
           </div>
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#9b9892" data-lightbox-group="cosmic-research" data-caption="Research board" data-full="/images/cosmic/research-1600.webp">
+          <button type="button" class="bounded shot" style="--w: 1600px; --tone:#9b9892" data-lightbox-group="cosmic-research" data-caption="Research board" data-full="/images/cosmic/research-1600.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/research-800.avif 800w, /images/cosmic/research-1600.avif 1600w" sizes="100vw">
-            <source type="image/webp" srcset="/images/cosmic/research-800.webp 800w, /images/cosmic/research-1600.webp 1600w" sizes="100vw">
-            <img src="/images/cosmic/research-1600.jpg" srcset="/images/cosmic/research-800.jpg 800w, /images/cosmic/research-1600.jpg 1600w" sizes="100vw" width="1600" height="900" alt="Cosmic Heirloom research board on Afrofuturism and Otomi Tenango embroidery." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/research-800.avif 800w, /images/cosmic/research-1600.avif 1600w" sizes="min(100vw, 1600px)">
+            <source type="image/webp" srcset="/images/cosmic/research-800.webp 800w, /images/cosmic/research-1600.webp 1600w" sizes="min(100vw, 1600px)">
+            <img src="/images/cosmic/research-1600.jpg" srcset="/images/cosmic/research-800.jpg 800w, /images/cosmic/research-1600.jpg 1600w" sizes="min(100vw, 1600px)" width="1600" height="900" alt="Cosmic Heirloom research board on Afrofuturism and Otomi Tenango embroidery." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Research board</figcaption>
@@ -1290,11 +1448,12 @@ dialog.lightbox::backdrop {
             <p>Development works out how the dense embroidery sits on an urban contemporary silhouette, and how the story’s chapters change the garment.</p>
           </div>
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#9d938a" data-lightbox-group="cosmic-dev" data-caption="Development board" data-full="/images/cosmic/development-1600.webp">
+          <button type="button" class="bounded shot" style="--w: 1600px; --tone:#9d938a" data-lightbox-group="cosmic-dev" data-caption="Development board" data-full="/images/cosmic/development-1600.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/development-800.avif 800w, /images/cosmic/development-1600.avif 1600w" sizes="100vw">
-            <source type="image/webp" srcset="/images/cosmic/development-800.webp 800w, /images/cosmic/development-1600.webp 1600w" sizes="100vw">
-            <img src="/images/cosmic/development-1600.jpg" srcset="/images/cosmic/development-800.jpg 800w, /images/cosmic/development-1600.jpg 1600w" sizes="100vw" width="1600" height="900" alt="Development board with garment sketches, an embroidery close-up, a red and green palette, and textile swatches." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/development-800.avif 800w, /images/cosmic/development-1600.avif 1600w" sizes="min(100vw, 1600px)">
+            <source type="image/webp" srcset="/images/cosmic/development-800.webp 800w, /images/cosmic/development-1600.webp 1600w" sizes="min(100vw, 1600px)">
+            <img src="/images/cosmic/development-1600.jpg" srcset="/images/cosmic/development-800.jpg 800w, /images/cosmic/development-1600.jpg 1600w" sizes="min(100vw, 1600px)" width="1600" height="900" alt="Development board with garment sketches, an embroidery close-up, a red and green palette, and textile swatches." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Development board</figcaption>
@@ -1311,49 +1470,53 @@ dialog.lightbox::backdrop {
           </div>
           <div class="lookbook" role="region" aria-label="Cosmic Heirloom final collection">
       <ul class="lookbook-track" tabindex="0">
-        <li>
+        <li style="--w: 532px">
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#a7a2b2" data-lightbox-group="cosmic-finals" data-caption="Back view" data-full="/images/cosmic/braids-532.webp">
+          <button type="button" class="bounded shot" style="--w: 532px; --tone:#a7a2b2" data-lightbox-group="cosmic-finals" data-caption="Back view" data-full="/images/cosmic/braids-532.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 800px) 26rem, 78vw">
-            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 800px) 26rem, 78vw">
-            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 800px) 26rem, 78vw" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)">
+            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)">
+            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Back view</figcaption>
         </figure>
         </li>
-        <li>
+        <li style="--w: 532px">
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#979da9" data-lightbox-group="cosmic-finals" data-caption="Front view" data-full="/images/cosmic/profile-532.webp">
+          <button type="button" class="bounded shot" style="--w: 532px; --tone:#979da9" data-lightbox-group="cosmic-finals" data-caption="Front view" data-full="/images/cosmic/profile-532.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/profile-480.avif 480w, /images/cosmic/profile-532.avif 532w" sizes="(min-width: 800px) 26rem, 78vw">
-            <source type="image/webp" srcset="/images/cosmic/profile-480.webp 480w, /images/cosmic/profile-532.webp 532w" sizes="(min-width: 800px) 26rem, 78vw">
-            <img src="/images/cosmic/profile-532.jpg" srcset="/images/cosmic/profile-480.jpg 480w, /images/cosmic/profile-532.jpg 532w" sizes="(min-width: 800px) 26rem, 78vw" width="532" height="800" alt="Front view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/profile-480.avif 480w, /images/cosmic/profile-532.avif 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)">
+            <source type="image/webp" srcset="/images/cosmic/profile-480.webp 480w, /images/cosmic/profile-532.webp 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)">
+            <img src="/images/cosmic/profile-532.jpg" srcset="/images/cosmic/profile-480.jpg 480w, /images/cosmic/profile-532.jpg 532w" sizes="(min-width: 800px) min(26rem, 532px), min(78vw, 532px)" width="532" height="800" alt="Front view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Front view</figcaption>
         </figure>
         </li>
-        <li>
+        <li style="--w: 479px">
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#989ca7" data-lightbox-group="cosmic-finals" data-caption="Standing look" data-full="/images/cosmic/standing-479.webp">
+          <button type="button" class="bounded shot" style="--w: 479px; --tone:#989ca7" data-lightbox-group="cosmic-finals" data-caption="Standing look" data-full="/images/cosmic/standing-479.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/standing-479.avif 479w" sizes="(min-width: 800px) 26rem, 78vw">
-            <source type="image/webp" srcset="/images/cosmic/standing-479.webp 479w" sizes="(min-width: 800px) 26rem, 78vw">
-            <img src="/images/cosmic/standing-479.jpg" srcset="/images/cosmic/standing-479.jpg 479w" sizes="(min-width: 800px) 26rem, 78vw" width="479" height="720" alt="A standing model in a long black garment with multicoloured embroidery and white shoes." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/standing-479.avif 479w" sizes="(min-width: 800px) min(26rem, 479px), min(78vw, 479px)">
+            <source type="image/webp" srcset="/images/cosmic/standing-479.webp 479w" sizes="(min-width: 800px) min(26rem, 479px), min(78vw, 479px)">
+            <img src="/images/cosmic/standing-479.jpg" srcset="/images/cosmic/standing-479.jpg 479w" sizes="(min-width: 800px) min(26rem, 479px), min(78vw, 479px)" width="479" height="720" alt="A standing model in a long black garment with multicoloured embroidery and white shoes." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Standing look</figcaption>
         </figure>
         </li>
-        <li>
+        <li style="--w: 426px">
           <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#bfc8d5" data-lightbox-group="cosmic-finals" data-caption="Embroidery detail" data-full="/images/cosmic/detail-426.webp">
+          <button type="button" class="bounded shot" style="--w: 426px; --tone:#bfc8d5" data-lightbox-group="cosmic-finals" data-caption="Embroidery detail" data-full="/images/cosmic/detail-426.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/detail-426.avif 426w" sizes="(min-width: 800px) 26rem, 78vw">
-            <source type="image/webp" srcset="/images/cosmic/detail-426.webp 426w" sizes="(min-width: 800px) 26rem, 78vw">
-            <img src="/images/cosmic/detail-426.jpg" srcset="/images/cosmic/detail-426.jpg 426w" sizes="(min-width: 800px) 26rem, 78vw" width="426" height="640" alt="Close view of bright multicoloured Otomi embroidery on black cloth, with a bird and curling stems." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/detail-426.avif 426w" sizes="(min-width: 800px) min(26rem, 426px), min(78vw, 426px)">
+            <source type="image/webp" srcset="/images/cosmic/detail-426.webp 426w" sizes="(min-width: 800px) min(26rem, 426px), min(78vw, 426px)">
+            <img src="/images/cosmic/detail-426.jpg" srcset="/images/cosmic/detail-426.jpg 426w" sizes="(min-width: 800px) min(26rem, 426px), min(78vw, 426px)" width="426" height="640" alt="Close view of bright multicoloured Otomi embroidery on black cloth, with a bird and curling stems." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Embroidery detail</figcaption>
@@ -1366,11 +1529,12 @@ dialog.lightbox::backdrop {
       </div>
     </div>
           <figure class="shot-figure lineup">
-          <button type="button" class="shot" style="--tone:#cbc9c7" data-lightbox-group="cosmic-finals" data-caption="Collection line-up" data-full="/images/cosmic/back-800.webp">
+          <button type="button" class="bounded shot" style="--w: 800px; --tone:#cbc9c7" data-lightbox-group="cosmic-finals" data-caption="Collection line-up" data-full="/images/cosmic/back-800.webp">
+            <!-- placeholder from PDF, replace with Drive original -->
             <picture>
-            <source type="image/avif" srcset="/images/cosmic/back-480.avif 480w, /images/cosmic/back-800.avif 800w" sizes="(min-width: 800px) 70vw, 100vw">
-            <source type="image/webp" srcset="/images/cosmic/back-480.webp 480w, /images/cosmic/back-800.webp 800w" sizes="(min-width: 800px) 70vw, 100vw">
-            <img src="/images/cosmic/back-800.jpg" srcset="/images/cosmic/back-480.jpg 480w, /images/cosmic/back-800.jpg 800w" sizes="(min-width: 800px) 70vw, 100vw" width="800" height="545" alt="Colour line-up of six illustrated Cosmic Heirloom looks, with starbursts and animal motifs." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/back-480.avif 480w, /images/cosmic/back-800.avif 800w" sizes="(min-width: 800px) min(70vw, 800px), min(100vw, 800px)">
+            <source type="image/webp" srcset="/images/cosmic/back-480.webp 480w, /images/cosmic/back-800.webp 800w" sizes="(min-width: 800px) min(70vw, 800px), min(100vw, 800px)">
+            <img src="/images/cosmic/back-800.jpg" srcset="/images/cosmic/back-480.jpg 480w, /images/cosmic/back-800.jpg 800w" sizes="(min-width: 800px) min(70vw, 800px), min(100vw, 800px)" width="800" height="545" alt="Colour line-up of six illustrated Cosmic Heirloom looks, with starbursts and animal motifs." loading="lazy" decoding="async">
           </picture>
           </button>
           <figcaption>Collection line-up</figcaption>
