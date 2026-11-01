@@ -1100,21 +1100,19 @@ dialog.lightbox::backdrop {
   padding: var(--s-8) 0;
 }
 
-.js [data-reveal] {
+/* Hidden only after JS marks a block .is-armed. Without that class the
+   copy and pictures stay at full ink, including when JS never runs. */
+.is-armed:not(.is-in) {
   opacity: 0;
   transform: translateY(16px);
 }
 
-.js [data-reveal].is-in,
-.js [data-clip].is-in {
+.is-armed.is-in {
   opacity: 1;
   transform: none;
   clip-path: inset(0);
   transition: opacity 460ms var(--ease), transform 460ms var(--ease), clip-path 520ms var(--ease);
 }
-
-.js [data-reveal].is-in:nth-child(2) { transition-delay: 60ms; }
-.js [data-reveal].is-in:nth-child(3) { transition-delay: 120ms; }
 
 @media (min-width: 720px) {
   .gallery { grid-template-columns: 1fr 1fr; }
@@ -1143,34 +1141,50 @@ dialog.lightbox::backdrop {
   }
   .thread { display: block; }
   .hero {
-    display: block;
-    width: min(80rem, calc(100% - 3rem));
+    display: grid;
+    grid-template-columns: minmax(16rem, 40rem) minmax(18rem, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: clamp(1.25rem, 2.5vw, 2.25rem);
+    align-items: stretch;
+    width: calc(100% - 3rem);
     margin-inline: auto;
-    min-height: calc(100svh - var(--header) - 0.75rem);
-    padding: 0.35rem 0 1.25rem;
-    overflow: clip;
+    min-height: 0;
+    padding: 0.5rem 0 1rem;
+    overflow: visible;
   }
   .hero-name {
-    z-index: 1;
-    width: auto;
-    max-width: none;
-    margin: 0;
-    font-size: clamp(5rem, 19vw, 17.5rem);
-    line-height: 0.74;
-    letter-spacing: -0.04em;
-    /* The J in Cormorant sits left of its box. */
-    padding-left: 0.07em;
-  }
-  .hero-name span { white-space: nowrap; }
-  .hero-media {
-    position: absolute;
+    grid-column: 1;
+    grid-row: 1;
     z-index: 2;
-    left: 42%;
-    top: 0.35rem;
-    width: min(42%, calc((100svh - var(--header) - 3.25rem) * 1365 / 2048));
+    align-self: end;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    line-height: 0.78;
+    letter-spacing: -0.035em;
+    padding-left: 0.06em;
+    padding-right: 0.08em;
+    container-type: inline-size;
+  }
+  .hero-name span {
+    display: block;
+    white-space: nowrap;
+    /* The span queries the heading, so “De Silva” stays inside the column. */
+    font-size: clamp(4.2rem, 30cqi, 11.5rem);
+  }
+  .hero-media {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: relative;
+    z-index: 1;
+    left: auto;
+    top: auto;
+    width: 100%;
     height: auto;
     max-height: none;
     aspect-ratio: 1365 / 2048;
+    justify-self: stretch;
+    align-self: start;
     clip-path: none;
     margin: 0;
   }
@@ -1180,15 +1194,18 @@ dialog.lightbox::backdrop {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 9%;
+    height: 8%;
     background: linear-gradient(to bottom, transparent, var(--paper));
     pointer-events: none;
   }
   .hero-copy {
+    grid-column: 1;
+    grid-row: 2;
     position: relative;
-    z-index: 3;
-    width: min(34rem, calc(42% - 1.25rem));
-    margin: var(--s-5) 0 0;
+    z-index: 2;
+    align-self: start;
+    width: min(34rem, 100%);
+    margin: var(--s-4) 0 0;
     padding-bottom: 0;
   }
   .work-section { padding-top: var(--s-6); }
@@ -1236,8 +1253,8 @@ dialog.lightbox::backdrop {
     animation: none !important;
     transition: none !important;
   }
-  .js [data-reveal] { opacity: 1; transform: none; }
-  .js [data-clip] { clip-path: none; }
+  .is-armed:not(.is-in),
+  .is-armed.is-in { opacity: 1; transform: none; clip-path: none; }
   [data-parallax] { transform: none !important; }
   .thread path { stroke-dashoffset: 0 !important; }
   .lookbook-track { scroll-snap-type: none; scroll-behavior: auto; }
@@ -1249,7 +1266,7 @@ dialog.lightbox::backdrop {
   @view-transition {
     navigation: auto;
   }
-  .js [data-clip] { clip-path: inset(12% 0 0 0); }
+  .is-armed[data-clip]:not(.is-in) { clip-path: inset(12% 0 0 0); }
   .hero-media img[data-parallax],
   .portrait-arch img[data-parallax] {
     transform: scale(1.08);

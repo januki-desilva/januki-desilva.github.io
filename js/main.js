@@ -115,7 +115,9 @@ if (sections.length && "IntersectionObserver" in window) {
   sections.forEach((section) => observer.observe(section));
 }
 
-/* Scroll reveals. Content stays visible if JS never runs. */
+/* Scroll reveals. Nothing is hidden until this script adds .is-armed.
+   A timeout finishes the job if an observer never fires. */
+const revealNodes = [...document.querySelectorAll("[data-reveal], [data-clip]")];
 if (!reduceMotion && "IntersectionObserver" in window) {
   const reveal = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -123,10 +125,22 @@ if (!reduceMotion && "IntersectionObserver" in window) {
       entry.target.classList.add("is-in");
       reveal.unobserve(entry.target);
     });
-  }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll("[data-reveal], [data-clip]").forEach((node) => reveal.observe(node));
+  }, { threshold: 0.08, rootMargin: "0px 0px -4% 0px" });
+  const view = window.innerHeight || 0;
+  revealNodes.forEach((node) => {
+    const rect = node.getBoundingClientRect();
+    const seen = rect.bottom > 0 && rect.top < view * 0.96;
+    if (seen) node.classList.add("is-in");
+    else {
+      node.classList.add("is-armed");
+      reveal.observe(node);
+    }
+  });
+  window.setTimeout(() => {
+    revealNodes.forEach((node) => node.classList.add("is-in"));
+  }, 2000);
 } else {
-  document.querySelectorAll("[data-reveal], [data-clip]").forEach((node) => node.classList.add("is-in"));
+  revealNodes.forEach((node) => node.classList.add("is-in"));
 }
 
 /* Desktop cursor preview on the project list. */
