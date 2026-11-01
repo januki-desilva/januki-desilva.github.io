@@ -430,18 +430,18 @@ figcaption,
   object-position: center 16%;
 }
 
-.hero-name,
-.hero-copy {
+.hero-stack {
   width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
+  margin-top: -1.15rem;
 }
 
 .hero-name {
   position: relative;
   z-index: 2;
-  margin-top: -1.15rem;
+  margin: 0;
   font-size: clamp(3.5rem, 16.5vw, 5.6rem);
-  line-height: 0.82;
+  line-height: 0.9;
   letter-spacing: -0.04em;
   padding-left: 0.06em;
 }
@@ -1215,26 +1215,30 @@ dialog.lightbox::backdrop {
   .thread { display: block; }
   .hero {
     display: grid;
-    grid-template-columns: minmax(16rem, 40rem) minmax(18rem, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    column-gap: clamp(1.25rem, 2.5vw, 2.25rem);
-    align-items: stretch;
+    grid-template-columns: minmax(16rem, 40rem) minmax(16rem, 1fr);
+    column-gap: clamp(1.25rem, 2.5vw, 2.5rem);
+    align-items: center;
     width: calc(100% - 3rem);
     margin-inline: auto;
-    min-height: 0;
-    padding: 0.5rem 0 1rem;
+    min-height: calc(100svh - var(--header));
+    padding: clamp(1.35rem, 3.2vh, 2.4rem) 0 clamp(1rem, 2vh, 1.75rem);
     overflow: visible;
   }
-  .hero-name {
+  .hero-stack {
     grid-column: 1;
     grid-row: 1;
-    z-index: 2;
-    align-self: end;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    align-self: center;
+  }
+  .hero-name {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    line-height: 0.78;
+    line-height: 0.92;
     letter-spacing: -0.035em;
+    padding-top: 0.08em;
     padding-left: 0.06em;
     padding-right: 0.08em;
     container-type: inline-size;
@@ -1243,21 +1247,22 @@ dialog.lightbox::backdrop {
     display: block;
     white-space: nowrap;
     /* The span queries the heading, so “De Silva” stays inside the column. */
-    font-size: clamp(4.2rem, 30cqi, 11.5rem);
+    font-size: clamp(3.6rem, 28cqi, 9.5rem);
   }
   .hero-media {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     position: relative;
     z-index: 1;
     left: auto;
     top: auto;
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: min(calc(100svh - var(--header) - 3.5rem), 82vh);
+    max-width: 100%;
     max-height: none;
     aspect-ratio: 1365 / 2048;
-    justify-self: stretch;
-    align-self: start;
+    justify-self: end;
+    align-self: center;
     clip-path: none;
     margin: 0;
   }
@@ -1272,11 +1277,8 @@ dialog.lightbox::backdrop {
     pointer-events: none;
   }
   .hero-copy {
-    grid-column: 1;
-    grid-row: 2;
     position: relative;
     z-index: 2;
-    align-self: start;
     width: min(34rem, 100%);
     margin: var(--s-4) 0 0;
     padding-bottom: 0;
@@ -1395,11 +1397,13 @@ dialog.lightbox::backdrop {
             <img src="/images/parasomnia/hero-960.jpg" srcset="/images/parasomnia/hero-480.jpg 480w, /images/parasomnia/hero-960.jpg 960w, /images/parasomnia/hero-1365.jpg 1365w" sizes="(min-width: 800px) min(46vw, 720px), 100vw" width="1365" height="2048" alt="Parasomnia final collection. A model in a dark textured garment, one hand near the face, against a deep burgundy backlight." data-parallax fetchpriority="high" decoding="async">
           </picture>
       </figure>
-      <h1 class="hero-name" id="intro-title"><span>Januki</span><span>De Silva</span></h1>
-      <div class="hero-copy">
-        <p class="eyebrow">Fashion Design Undergraduate</p>
-        <p class="lede">Every collection starts from a story or a feeling.</p>
-        <a class="btn" href="#work">View work</a>
+      <div class="hero-stack">
+        <h1 class="hero-name" id="intro-title"><span>Januki</span><span>De Silva</span></h1>
+        <div class="hero-copy">
+          <p class="eyebrow">Fashion Design Undergraduate</p>
+          <p class="lede">Every collection starts from a story or a feeling.</p>
+          <a class="btn" href="#work">View work</a>
+        </div>
       </div>
     </section>
 
