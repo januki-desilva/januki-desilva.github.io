@@ -43,7 +43,10 @@ function onScroll() {
   }
   lastY = y;
   document.querySelector(".to-top")?.classList.toggle("is-on", y > 700);
-  if (!reduceMotion) drawThread();
+  if (!reduceMotion) {
+    drawThread();
+    drawParallax();
+  }
   ticking = false;
 }
 
@@ -62,11 +65,26 @@ function drawThread() {
   path.style.strokeDashoffset = String(1 - progress);
 }
 
+/* Big photographs drift a few pixels. Transform only, and only when motion is allowed. */
+const parallaxNodes = reduceMotion ? [] : [...document.querySelectorAll("[data-parallax]")];
+
+function drawParallax() {
+  const view = window.innerHeight || 1;
+  parallaxNodes.forEach((node) => {
+    const rect = node.getBoundingClientRect();
+    if (rect.bottom < -40 || rect.top > view + 40) return;
+    const delta = (rect.top + rect.height * 0.5 - view * 0.5) / view;
+    const shift = Math.max(-26, Math.min(26, -delta * 32));
+    node.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0) scale(1.08)`;
+  });
+}
+
 if (reduceMotion) {
   const path = document.querySelector(".thread path");
   if (path) path.style.strokeDashoffset = "0";
 } else {
   drawThread();
+  drawParallax();
 }
 
 /* Active section in the header (home) and the in-page project nav. */
@@ -106,9 +124,9 @@ if (!reduceMotion && "IntersectionObserver" in window) {
       reveal.unobserve(entry.target);
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll("[data-reveal]").forEach((node) => reveal.observe(node));
+  document.querySelectorAll("[data-reveal], [data-clip]").forEach((node) => reveal.observe(node));
 } else {
-  document.querySelectorAll("[data-reveal]").forEach((node) => node.classList.add("is-in"));
+  document.querySelectorAll("[data-reveal], [data-clip]").forEach((node) => node.classList.add("is-in"));
 }
 
 /* Desktop cursor preview on the project list. */

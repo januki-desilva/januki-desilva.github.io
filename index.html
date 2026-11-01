@@ -27,7 +27,7 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preload" href="/fonts/f8.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" as="image" href="/images/parasomnia/hero-480.avif" imagesrcset="/images/parasomnia/hero-480.avif 480w, /images/parasomnia/hero-960.avif 960w, /images/parasomnia/hero-1365.avif 1365w" imagesizes="(min-width: 800px) 54vw, 100vw" type="image/avif" fetchpriority="high">
+  <link rel="preload" as="image" href="/images/parasomnia/hero-480.avif" imagesrcset="/images/parasomnia/hero-480.avif 480w, /images/parasomnia/hero-960.avif 960w, /images/parasomnia/hero-1365.avif 1365w" imagesizes="(min-width: 800px) min(42vw, 560px), 100vw" type="image/avif" fetchpriority="high">
 <!-- site-css:start -->
 <style>
 /* Self-hosted, subset, free fonts. Two families only.
@@ -73,7 +73,8 @@
 
 /* Januki De Silva — portfolio
    Neutral paper and ink. Project accents are set on the body.
-   Motion uses transform and opacity only. */
+   Motion uses transform and opacity, plus a short clip-path
+   reveal on pictures. Scroll parallax is transform only. */
 
 :root {
   --paper: #f3eee6;
@@ -103,6 +104,7 @@
   --text-h2: clamp(2.1rem, 1.4rem + 2.2vw, 3.4rem);
   --text-h1: clamp(2.7rem, 1.15rem + 6.4vw, 6.25rem);
   --measure: 38rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
@@ -370,7 +372,8 @@ figcaption,
   font-weight: 400;
 }
 
-.site-nav a[aria-current="true"] {
+.site-nav a[aria-current="true"],
+.site-nav a[aria-current="page"] {
   background-image: linear-gradient(90deg, var(--ink) 45%, transparent 0);
   background-size: 7px 1px;
   background-repeat: repeat-x;
@@ -397,23 +400,25 @@ figcaption,
 }
 
 /* Hero
-   Mobile keeps the photograph near 60svh so the name, role and
-   View work sit in the first screen. Desktop caps it near 85vh
-   and centres a larger name beside it, leaving a peek of work. */
+   The display name sits on the paper and the photograph overlaps it.
+   Mobile keeps the photograph near 52svh so the name, role, one line
+   and View work stay in the first screen. */
 .hero {
-  --hero-h: min(60svh, calc(100svh - var(--header) - 18rem));
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--s-3);
-  padding-bottom: var(--s-2);
+  width: 100%;
+  padding-bottom: var(--s-4);
+  overflow: clip;
 }
 
 .hero-media {
+  position: relative;
   background: var(--tone, #351a0f);
   overflow: hidden;
   width: 100%;
-  height: var(--hero-h);
-  max-height: 60svh;
+  height: min(52svh, 24rem);
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 0 90%);
 }
 
 .hero-media picture,
@@ -425,9 +430,24 @@ figcaption,
   object-position: center 16%;
 }
 
+.hero-name,
 .hero-copy {
   width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
+}
+
+.hero-name {
+  position: relative;
+  z-index: 2;
+  margin-top: -1.15rem;
+  font-size: clamp(3.5rem, 16.5vw, 5.6rem);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  padding-left: 0.06em;
+}
+
+.hero-name span {
+  display: block;
 }
 
 .hero-copy .eyebrow {
@@ -438,23 +458,7 @@ figcaption,
   margin-bottom: 0;
 }
 
-.hero-copy h1 {
-  line-height: 0.9;
-}
-
-.hero-copy h1 span {
-  display: block;
-}
-
-.hero .btn { margin-top: var(--s-3); }
-
-.hero-credit {
-  margin: var(--s-3) 0 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
+.hero .btn { margin-top: var(--s-4); }
 
 /* Buttons and chips */
 .btn,
@@ -477,7 +481,7 @@ figcaption,
   font-size: var(--text-sm);
   font-weight: 400;
   cursor: pointer;
-  transition: transform 200ms ease-out, background-color 200ms ease-out, color 200ms ease-out;
+  transition: transform 200ms var(--ease), background-color 200ms var(--ease), color 200ms var(--ease);
 }
 
 .btn:hover,
@@ -560,18 +564,23 @@ figcaption,
 .work-card .frame {
   overflow: hidden;
   background: var(--tone, var(--paper-2));
+  width: min(100%, var(--w, 100%));
+  margin-inline: auto;
+  aspect-ratio: 3 / 4;
 }
 
 .work-card .frame picture,
 .work-card .frame img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
 }
 
 .work-card img {
   transform: scale(1);
-  transition: transform 450ms ease-out;
+  transition: transform 450ms var(--ease);
 }
 
 .work-card:hover img,
@@ -585,9 +594,17 @@ figcaption,
   padding-top: var(--s-3);
 }
 
+.work-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
 .work-meta strong {
   font-family: var(--serif);
-  font-size: clamp(1.8rem, 1.3rem + 1.4vw, 2.6rem);
+  font-size: clamp(1.55rem, 1.15rem + 1.1vw, 2.35rem);
   font-weight: 600;
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -607,7 +624,7 @@ figcaption,
   font-weight: 400;
   transform: translateY(6px);
   opacity: 0;
-  transition: transform 280ms ease-out, opacity 280ms ease-out;
+  transition: transform 280ms var(--ease), opacity 280ms var(--ease);
 }
 
 @media (hover: none) {
@@ -661,6 +678,97 @@ figcaption,
   background: var(--tone, #6a6668);
 }
 
+.portrait-arch {
+  border-radius: 999px 999px 0 0;
+  overflow: hidden;
+  width: min(100%, var(--w, 28rem));
+  aspect-ratio: 3 / 4;
+  background: var(--tone, #6a6668);
+}
+
+.portrait-arch picture,
+.portrait-arch img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+}
+
+/* Small links off the landing page. The frame stays at or under the file's width. */
+.section-tight {
+  padding-top: var(--s-7);
+  padding-bottom: var(--s-7);
+}
+
+.teaser-grid {
+  display: grid;
+  gap: var(--s-5);
+}
+
+.teaser {
+  display: grid;
+  grid-template-columns: 5.75rem minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: center;
+  min-height: 44px;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+}
+
+.teaser-grid .teaser:last-child {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--s-4);
+}
+
+.teaser .frame {
+  width: min(5.75rem, var(--w, 5.75rem));
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--tone, var(--paper-2));
+}
+
+.teaser .frame picture,
+.teaser .frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.teaser-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.teaser-copy .work-tag { color: var(--accent); }
+
+.teaser strong {
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 1.1rem + 0.6vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+/* Keep a picture at or under the pixel width of its largest file. */
+.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
+}
+
+.project-hero .frame.bounded {
+  justify-self: end;
+}
+
+.gallery .bounded,
+.tech-grid .bounded {
+  justify-self: center;
+}
+
 .portrait figcaption,
 .frame figcaption,
 .shot-figure figcaption {
@@ -694,7 +802,19 @@ figcaption,
   width: 100%;
   height: auto;
   transform: scale(1);
-  transition: transform 400ms ease-out;
+  transition: transform 400ms var(--ease);
+}
+
+.shot.bounded,
+figure.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.frame.bounded {
+  width: min(100%, var(--w));
+  max-width: 100%;
 }
 
 .shot:hover img,
@@ -867,7 +987,8 @@ figcaption,
 }
 
 .lookbook-track li {
-  flex: 0 0 min(78%, 26rem);
+  flex: 0 0 min(78%, 26rem, var(--w, 80rem));
+  max-width: min(78%, 26rem, var(--w, 80rem));
   scroll-snap-align: start;
   min-width: 0;
 }
@@ -1057,10 +1178,12 @@ dialog.lightbox::backdrop {
   transform: translateY(16px);
 }
 
-.js [data-reveal].is-in {
+.js [data-reveal].is-in,
+.js [data-clip].is-in {
   opacity: 1;
   transform: none;
-  transition: opacity 420ms ease-out, transform 420ms ease-out;
+  clip-path: inset(0);
+  transition: opacity 460ms var(--ease), transform 460ms var(--ease), clip-path 520ms var(--ease);
 }
 
 .js [data-reveal].is-in:nth-child(2) { transition-delay: 60ms; }
@@ -1075,6 +1198,8 @@ dialog.lightbox::backdrop {
   .project-hero { grid-template-columns: 0.9fr 1.1fr; align-items: end; }
   .project-hero .frame { order: 0; }
   .about-grid { grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.2fr); }
+  .teaser-grid { grid-template-columns: 1fr 1fr; gap: var(--s-6); align-items: stretch; }
+  .teaser { border-bottom: 1px solid var(--line); padding-bottom: var(--s-4); }
 }
 
 @media (min-width: 800px) {
@@ -1091,55 +1216,59 @@ dialog.lightbox::backdrop {
   }
   .thread { display: block; }
   .hero {
-    --hero-h: min(85vh, calc(100svh - var(--header) - 9.25rem));
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    align-items: center;
-    gap: clamp(1.5rem, 3vw, 3.5rem);
-    width: min(90rem, calc(100% - 3rem));
+    display: block;
+    width: min(80rem, calc(100% - 3rem));
     margin-inline: auto;
-    min-height: 0;
-    padding: 0.75rem 0 0.5rem;
+    min-height: calc(100svh - var(--header) - 0.75rem);
+    padding: 0.35rem 0 1.25rem;
+    overflow: clip;
   }
+  .hero-name {
+    z-index: 1;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    font-size: clamp(5rem, 19vw, 17.5rem);
+    line-height: 0.74;
+    letter-spacing: -0.04em;
+    /* The J in Cormorant sits left of its box. */
+    padding-left: 0.07em;
+  }
+  .hero-name span { white-space: nowrap; }
   .hero-media {
-    width: min(100%, calc(var(--hero-h) * 1365 / 2048));
-    max-width: 100%;
-    min-width: 0;
+    position: absolute;
+    z-index: 2;
+    left: 42%;
+    top: 0.35rem;
+    width: min(42%, calc((100svh - var(--header) - 3.25rem) * 1365 / 2048));
     height: auto;
-    max-height: var(--hero-h);
+    max-height: none;
     aspect-ratio: 1365 / 2048;
-    justify-self: end;
-    align-self: center;
-    order: 2;
+    clip-path: none;
+    margin: 0;
+  }
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 9%;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+    pointer-events: none;
   }
   .hero-copy {
-    width: auto;
-    min-width: 0;
-    margin: 0;
-    order: 1;
+    position: relative;
+    z-index: 3;
+    width: min(34rem, calc(42% - 1.25rem));
+    margin: var(--s-5) 0 0;
     padding-bottom: 0;
-    align-self: center;
-  }
-  .hero-copy h1 {
-    font-size: clamp(4.25rem, 1.4rem + 6.6vw, 9.25rem);
-    line-height: 0.86;
-    letter-spacing: -0.035em;
-    /* The J in Cormorant sits left of its box. Keep the ink inside the column. */
-    padding-left: 0.08em;
   }
   .work-section { padding-top: var(--s-6); }
   .work-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: var(--s-7) var(--s-6);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-6) var(--s-4);
     align-items: start;
-  }
-  .work-card:first-child { grid-row: span 2; }
-  .work-card:last-child { grid-column: 1 / -1; }
-  .work-card:last-child a {
-    display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
-    gap: var(--s-5);
-    align-items: end;
   }
 }
 
@@ -1181,6 +1310,8 @@ dialog.lightbox::backdrop {
     transition: none !important;
   }
   .js [data-reveal] { opacity: 1; transform: none; }
+  .js [data-clip] { clip-path: none; }
+  [data-parallax] { transform: none !important; }
   .thread path { stroke-dashoffset: 0 !important; }
   .lookbook-track { scroll-snap-type: none; scroll-behavior: auto; }
   .view-line { opacity: 1; transform: none; }
@@ -1190,6 +1321,12 @@ dialog.lightbox::backdrop {
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
+  }
+  .js [data-clip] { clip-path: inset(12% 0 0 0); }
+  .hero-media img[data-parallax],
+  .portrait-arch img[data-parallax] {
+    transform: scale(1.08);
+    transform-origin: center 18%;
   }
 }
 </style>
@@ -1220,11 +1357,11 @@ dialog.lightbox::backdrop {
   <header class="site-header">
     <a class="logo" href="/#top">Januki De Silva</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav id="site-nav" class="site-nav" aria-label="Sections">
+      <nav id="site-nav" class="site-nav" aria-label="Primary">
       <a href="/#work" data-nav="work">Work</a>
-      <a href="/#about" data-nav="about">About</a>
-      <a href="/#illustration" data-nav="illustration">Illustration</a>
-      <a href="/#tech-packs" data-nav="tech-packs">Tech packs</a>
+      <a href="/about/">About</a>
+      <a href="/illustration/">Illustration</a>
+      <a href="/tech-packs/">Tech packs</a>
       <a href="/#contact" data-nav="contact">Contact</a>
     </nav>
   </header>
@@ -1236,17 +1373,16 @@ dialog.lightbox::backdrop {
     <section class="hero" aria-labelledby="intro-title">
       <figure class="hero-media" style="--tone:#351a0f">
         <picture>
-            <source type="image/avif" srcset="/images/parasomnia/hero-480.avif 480w, /images/parasomnia/hero-960.avif 960w, /images/parasomnia/hero-1365.avif 1365w" sizes="(min-width: 800px) 54vw, 100vw">
-            <source type="image/webp" srcset="/images/parasomnia/hero-480.webp 480w, /images/parasomnia/hero-960.webp 960w, /images/parasomnia/hero-1365.webp 1365w" sizes="(min-width: 800px) 54vw, 100vw">
-            <img src="/images/parasomnia/hero-960.jpg" srcset="/images/parasomnia/hero-480.jpg 480w, /images/parasomnia/hero-960.jpg 960w, /images/parasomnia/hero-1365.jpg 1365w" sizes="(min-width: 800px) 54vw, 100vw" width="1365" height="2048" alt="Parasomnia final collection. A model in a dark textured garment, one hand near the face, against a deep burgundy backlight." fetchpriority="high" decoding="async">
+            <source type="image/avif" srcset="/images/parasomnia/hero-480.avif 480w, /images/parasomnia/hero-960.avif 960w, /images/parasomnia/hero-1365.avif 1365w" sizes="(min-width: 800px) min(42vw, 560px), 100vw">
+            <source type="image/webp" srcset="/images/parasomnia/hero-480.webp 480w, /images/parasomnia/hero-960.webp 960w, /images/parasomnia/hero-1365.webp 1365w" sizes="(min-width: 800px) min(42vw, 560px), 100vw">
+            <img src="/images/parasomnia/hero-960.jpg" srcset="/images/parasomnia/hero-480.jpg 480w, /images/parasomnia/hero-960.jpg 960w, /images/parasomnia/hero-1365.jpg 1365w" sizes="(min-width: 800px) min(42vw, 560px), 100vw" width="1365" height="2048" alt="Parasomnia final collection. A model in a dark textured garment, one hand near the face, against a deep burgundy backlight." data-parallax fetchpriority="high" decoding="async">
           </picture>
       </figure>
+      <h1 class="hero-name" id="intro-title"><span>Januki</span><span>De Silva</span></h1>
       <div class="hero-copy">
         <p class="eyebrow">Fashion Design Undergraduate</p>
-        <h1 id="intro-title"><span>Januki</span><span>De Silva</span></h1>
         <p class="lede">Every collection starts from a story or a feeling.</p>
         <a class="btn" href="#work">View work</a>
-        <p class="hero-credit">Parasomnia — final collection</p>
       </div>
     </section>
 
@@ -1254,23 +1390,22 @@ dialog.lightbox::backdrop {
       <div class="wrap-wide">
         <p class="giant" aria-hidden="true">Work</p>
         <header class="section-head" data-reveal>
-          <p class="section-label">01 — Selected work</p>
-          <h2>Four projects</h2>
-          <p class="lede">From an avant-garde collection built out of waste cloth, to industry research, cultural study and campaign styling.</p>
+          <h2>Selected work</h2>
         </header>
         <div class="work-grid">
         <article class="work-card" data-preview="/images/parasomnia/hands-480.webp" data-reveal>
           <a href="/parasomnia/">
-            <div class="frame" style="--tone:#3b332b">
+            <div class="frame" style="--tone:#3b332b" data-clip>
               <picture>
-            <source type="image/avif" srcset="/images/parasomnia/hands-480.avif 480w, /images/parasomnia/hands-720.avif 720w, /images/parasomnia/hands-960.avif 960w, /images/parasomnia/hands-1365.avif 1365w" sizes="(min-width: 800px) 48vw, calc(100vw - 2rem)">
-            <source type="image/webp" srcset="/images/parasomnia/hands-480.webp 480w, /images/parasomnia/hands-720.webp 720w, /images/parasomnia/hands-960.webp 960w, /images/parasomnia/hands-1365.webp 1365w" sizes="(min-width: 800px) 48vw, calc(100vw - 2rem)">
-            <img src="/images/parasomnia/hands-960.jpg" srcset="/images/parasomnia/hands-480.jpg 480w, /images/parasomnia/hands-720.jpg 720w, /images/parasomnia/hands-960.jpg 960w, /images/parasomnia/hands-1365.jpg 1365w" sizes="(min-width: 800px) 48vw, calc(100vw - 2rem)" width="1365" height="2048" alt="Parasomnia final collection. A seated model with both hands raised near the face, in a dark textured garment." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/parasomnia/hands-480.avif 480w, /images/parasomnia/hands-720.avif 720w, /images/parasomnia/hands-960.avif 960w, /images/parasomnia/hands-1365.avif 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)">
+            <source type="image/webp" srcset="/images/parasomnia/hands-480.webp 480w, /images/parasomnia/hands-720.webp 720w, /images/parasomnia/hands-960.webp 960w, /images/parasomnia/hands-1365.webp 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)">
+            <img src="/images/parasomnia/hands-960.jpg" srcset="/images/parasomnia/hands-480.jpg 480w, /images/parasomnia/hands-720.jpg 720w, /images/parasomnia/hands-960.jpg 960w, /images/parasomnia/hands-1365.jpg 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)" width="1365" height="2048" alt="Parasomnia final collection. A seated model with both hands raised near the face, in a dark textured garment." loading="lazy" decoding="async">
           </picture>
             </div>
             <div class="work-meta">
-              <span class="work-tag">01 — Avant-garde</span>
+              <span class="work-num">01</span>
               <strong>Parasomnia</strong>
+              <span class="work-tag">Avant-garde</span>
               <span class="work-summary">Nightmares and sleep disturbance as a psychological landscape.</span>
               <span class="view-line">View project</span>
             </div>
@@ -1278,16 +1413,17 @@ dialog.lightbox::backdrop {
         </article>
         <article class="work-card" data-preview="/images/sacred/hero-480.webp" data-reveal>
           <a href="/sacred-skin/">
-            <div class="frame" style="--tone:#a98e76">
+            <div class="frame" style="--tone:#a98e76" data-clip>
               <picture>
-            <source type="image/avif" srcset="/images/sacred/hero-480.avif 480w, /images/sacred/hero-720.avif 720w, /images/sacred/hero-960.avif 960w, /images/sacred/hero-1365.avif 1365w" sizes="(min-width: 800px) 34vw, calc(100vw - 2rem)">
-            <source type="image/webp" srcset="/images/sacred/hero-480.webp 480w, /images/sacred/hero-720.webp 720w, /images/sacred/hero-960.webp 960w, /images/sacred/hero-1365.webp 1365w" sizes="(min-width: 800px) 34vw, calc(100vw - 2rem)">
-            <img src="/images/sacred/hero-960.jpg" srcset="/images/sacred/hero-480.jpg 480w, /images/sacred/hero-720.jpg 720w, /images/sacred/hero-960.jpg 960w, /images/sacred/hero-1365.jpg 1365w" sizes="(min-width: 800px) 34vw, calc(100vw - 2rem)" width="1365" height="2048" alt="Sacred Skin. A backlit fringed hat and ivory knit, photographed on the rocks." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/sacred/hero-480.avif 480w, /images/sacred/hero-720.avif 720w, /images/sacred/hero-960.avif 960w, /images/sacred/hero-1365.avif 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)">
+            <source type="image/webp" srcset="/images/sacred/hero-480.webp 480w, /images/sacred/hero-720.webp 720w, /images/sacred/hero-960.webp 960w, /images/sacred/hero-1365.webp 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)">
+            <img src="/images/sacred/hero-960.jpg" srcset="/images/sacred/hero-480.jpg 480w, /images/sacred/hero-720.jpg 720w, /images/sacred/hero-960.jpg 960w, /images/sacred/hero-1365.jpg 1365w" sizes="(min-width: 800px) 22vw, calc(100vw - 2rem)" width="1365" height="2048" alt="Sacred Skin. A backlit fringed hat and ivory knit, photographed on the rocks." loading="lazy" decoding="async">
           </picture>
             </div>
             <div class="work-meta">
-              <span class="work-tag">02 — Group project</span>
+              <span class="work-num">02</span>
               <strong>Sacred Skin</strong>
+              <span class="work-tag">Group project</span>
               <span class="work-summary">Lace-and-knit resort wear for Intimissimi, proposed for Teejay Lanka.</span>
               <span class="view-line">View project</span>
             </div>
@@ -1295,16 +1431,18 @@ dialog.lightbox::backdrop {
         </article>
         <article class="work-card" data-preview="/images/cosmic/braids-480.webp" data-reveal>
           <a href="/cosmic-heirloom/">
-            <div class="frame" style="--tone:#a7a2b2">
+            <div class="frame" style="--tone:#a7a2b2; --w: 532px" data-clip>
+              <!-- placeholder from PDF, replace with Drive original -->
               <picture>
-            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 800px) 34vw, 100vw">
-            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 800px) 34vw, 100vw">
-            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 800px) 34vw, 100vw" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/cosmic/braids-480.avif 480w, /images/cosmic/braids-532.avif 532w" sizes="(min-width: 800px) min(22vw, 532px), min(calc(100vw - 2rem), 532px)">
+            <source type="image/webp" srcset="/images/cosmic/braids-480.webp 480w, /images/cosmic/braids-532.webp 532w" sizes="(min-width: 800px) min(22vw, 532px), min(calc(100vw - 2rem), 532px)">
+            <img src="/images/cosmic/braids-532.jpg" srcset="/images/cosmic/braids-480.jpg 480w, /images/cosmic/braids-532.jpg 532w" sizes="(min-width: 800px) min(22vw, 532px), min(calc(100vw - 2rem), 532px)" width="532" height="800" alt="Back view of a model with braids and pink bows, in a black jacket with bright multicoloured Otomi embroidery and a black skirt." loading="lazy" decoding="async">
           </picture>
             </div>
             <div class="work-meta">
-              <span class="work-tag">03 — Global Crossroads</span>
+              <span class="work-num">03</span>
               <strong>Cosmic Heirloom</strong>
+              <span class="work-tag">Global crossroads</span>
               <span class="work-summary">Afrofuturism and Mexican Otomi embroidery, as urban contemporary wear.</span>
               <span class="view-line">View project</span>
             </div>
@@ -1312,16 +1450,18 @@ dialog.lightbox::backdrop {
         </article>
         <article class="work-card" data-preview="/images/editorial/hero-480.webp" data-reveal>
           <a href="/editorial-styling/">
-            <div class="frame" style="--tone:#b2b0b5">
+            <div class="frame" style="--tone:#b2b0b5; --w: 800px" data-clip>
+              <!-- placeholder from PDF, replace with Drive original -->
               <picture>
-            <source type="image/avif" srcset="/images/editorial/hero-480.avif 480w, /images/editorial/hero-800.avif 800w" sizes="(min-width: 800px) 62vw, 100vw">
-            <source type="image/webp" srcset="/images/editorial/hero-480.webp 480w, /images/editorial/hero-800.webp 800w" sizes="(min-width: 800px) 62vw, 100vw">
-            <img src="/images/editorial/hero-800.jpg" srcset="/images/editorial/hero-480.jpg 480w, /images/editorial/hero-800.jpg 800w" sizes="(min-width: 800px) 62vw, 100vw" width="800" height="565" alt="Editorial styling. Three models in white shirts and ties, posed together after Gucci Ancora." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/editorial/hero-480.avif 480w, /images/editorial/hero-800.avif 800w" sizes="(min-width: 800px) min(22vw, 800px), min(calc(100vw - 2rem), 800px)">
+            <source type="image/webp" srcset="/images/editorial/hero-480.webp 480w, /images/editorial/hero-800.webp 800w" sizes="(min-width: 800px) min(22vw, 800px), min(calc(100vw - 2rem), 800px)">
+            <img src="/images/editorial/hero-800.jpg" srcset="/images/editorial/hero-480.jpg 480w, /images/editorial/hero-800.jpg 800w" sizes="(min-width: 800px) min(22vw, 800px), min(calc(100vw - 2rem), 800px)" width="800" height="565" alt="Editorial styling. Three models in white shirts and ties, posed together after Gucci Ancora." loading="lazy" decoding="async">
           </picture>
             </div>
             <div class="work-meta">
-              <span class="work-tag">04 — Group project</span>
+              <span class="work-num">04</span>
               <strong>Editorial Styling</strong>
+              <span class="work-tag">Group project</span>
               <span class="work-summary">Six looks from Gucci’s Ancora campaign, Spring/Summer 2024.</span>
               <span class="view-line">View project</span>
             </div>
@@ -1334,211 +1474,60 @@ dialog.lightbox::backdrop {
 
     <section class="section" id="about">
       <div class="wrap">
-        <header class="section-head" data-reveal>
-          <p class="section-label">02 — About</p>
-          <h2>Hello, I’m Januki De Silva</h2>
-        </header>
         <div class="about-grid">
           <figure class="portrait" style="--tone:#6a6668" data-reveal>
+            <div class="portrait-arch">
             <picture>
-            <source type="image/avif" srcset="/images/portrait/januki-480.avif 480w, /images/portrait/januki-800.avif 800w, /images/portrait/januki-1102.avif 1102w" sizes="(min-width: 720px) 34vw, 100vw">
-            <source type="image/webp" srcset="/images/portrait/januki-480.webp 480w, /images/portrait/januki-800.webp 800w, /images/portrait/januki-1102.webp 1102w" sizes="(min-width: 720px) 34vw, 100vw">
-            <img src="/images/portrait/januki-800.jpg" srcset="/images/portrait/januki-480.jpg 480w, /images/portrait/januki-800.jpg 800w, /images/portrait/januki-1102.jpg 1102w" sizes="(min-width: 720px) 34vw, 100vw" width="1102" height="1427" alt="Portrait of Januki De Silva, with long dark hair, wearing a black blazer against a grey studio background." loading="lazy" decoding="async">
+            <source type="image/avif" srcset="/images/portrait/januki-480.avif 480w, /images/portrait/januki-800.avif 800w, /images/portrait/januki-1102.avif 1102w" sizes="(min-width: 720px) min(28rem, 1102px), min(calc(100vw - 2rem), 1102px)">
+            <source type="image/webp" srcset="/images/portrait/januki-480.webp 480w, /images/portrait/januki-800.webp 800w, /images/portrait/januki-1102.webp 1102w" sizes="(min-width: 720px) min(28rem, 1102px), min(calc(100vw - 2rem), 1102px)">
+            <img src="/images/portrait/januki-800.jpg" srcset="/images/portrait/januki-480.jpg 480w, /images/portrait/januki-800.jpg 800w, /images/portrait/januki-1102.jpg 1102w" sizes="(min-width: 720px) min(28rem, 1102px), min(calc(100vw - 2rem), 1102px)" width="1102" height="1427" alt="Portrait of Januki De Silva, with long dark hair, wearing a black blazer against a grey studio background." data-parallax loading="lazy" decoding="async">
           </picture>
+            </div>
             <figcaption>Januki De Silva</figcaption>
           </figure>
           <div class="about-copy" data-reveal>
-            <p>I am a third-year Fashion Design student working at the meeting point of emotion, narrative and material. Every collection begins with a story or a feeling, and I build the garment around it through research, textile experimentation and visual development.</p>
-            <p>I am drawn to the way clothing can carry meaning beyond the surface. Through manipulated fabrics, layered surfaces and considered silhouettes, I turn abstract experiences into wearable form.</p>
-            <p>My goal is to become a designer whose work challenges conventional ideas of beauty and gives people a way to express who they are.</p>
-            <div class="skill-block">
-              <h3>Practice</h3>
-              <ul class="chips">
-                <li>Illustration, manual and digital</li>
-                <li>Concept development</li>
-                <li>Design development</li>
-                <li>Tech packs</li>
-                <li>Fashion styling</li>
-                <li>Garment construction</li>
-              </ul>
-            </div>
-            <div class="skill-block">
-              <h3>Tools</h3>
-              <ul class="chips">
-                <li>Adobe Illustrator</li>
-                <li>Photoshop</li>
-                <li>Seamly2D</li>
-                <li>Clip Studio Paint</li>
-                <li>Canva</li>
-              </ul>
-            </div>
-            <p class="cluster" style="margin-top:1.5rem"><a class="btn" href="/portfolio/Januki-De-Silva-Portfolio.pdf">Download portfolio (PDF)</a></p>
+            <p class="section-label">About</p>
+            <h2>Hello, I’m Januki De Silva</h2>
+            <p>I am a third-year Fashion Design student working at the meeting point of emotion, narrative and material.</p>
+            <p>Every collection begins with a story or a feeling, and I build the garment around it through research, textile experimentation and visual development.</p>
+            <p><a class="btn-ghost" href="/about/">Full about</a></p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="illustration">
-      <div class="wrap-wide">
-        <header class="section-head" data-reveal>
-          <p class="section-label">03 — Drawing</p>
-          <h2>Illustration</h2>
-          <p class="lede">I draw by hand and on screen. Sketches use layered linework and cross-hatching. Clip Studio Paint is for soft shading, colour and detailed rendering, and illustration is where a fashion concept starts.</p>
-          <p class="secondary-link"><a href="https://www.instagram.com/cele.stia_7/">Illustration Instagram</a></p>
-        </header>
-        <div class="gallery">
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#e9e1d7" data-lightbox-group="illustration" data-caption="Adobe Illustrator" data-full="/images/illus/ai-01-565.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/ai-01-480.avif 480w, /images/illus/ai-01-565.avif 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/ai-01-480.webp 480w, /images/illus/ai-01-565.webp 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/ai-01-565.jpg" srcset="/images/illus/ai-01-480.jpg 480w, /images/illus/ai-01-565.jpg 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="565" height="800" alt="Fashion illustration of a figure in a pink and green dress, drawn in Adobe Illustrator." loading="lazy" decoding="async">
+    <section class="section section-tight" aria-labelledby="more-title">
+      <div class="wrap">
+        <h2 id="more-title" class="section-label">More work</h2>
+        <div class="teaser-grid">
+          <a class="teaser" href="/illustration/">
+            <div class="frame" style="--tone:#e9e1d7; --w: 565px">
+              <!-- placeholder from PDF, replace with Drive original -->
+              <picture>
+            <source type="image/avif" srcset="/images/illus/ai-01-480.avif 480w, /images/illus/ai-01-565.avif 565w" sizes="5.75rem">
+            <source type="image/webp" srcset="/images/illus/ai-01-480.webp 480w, /images/illus/ai-01-565.webp 565w" sizes="5.75rem">
+            <img src="/images/illus/ai-01-565.jpg" srcset="/images/illus/ai-01-480.jpg 480w, /images/illus/ai-01-565.jpg 565w" sizes="5.75rem" width="565" height="800" alt="Fashion illustration of a figure in a pink and green dress, drawn in Adobe Illustrator." loading="lazy" decoding="async">
           </picture>
-          </button>
-          <figcaption>Adobe Illustrator</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#ece4e1" data-lightbox-group="illustration" data-caption="Adobe Illustrator" data-full="/images/illus/ai-02-565.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/ai-02-480.avif 480w, /images/illus/ai-02-565.avif 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/ai-02-480.webp 480w, /images/illus/ai-02-565.webp 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/ai-02-565.jpg" srcset="/images/illus/ai-02-480.jpg 480w, /images/illus/ai-02-565.jpg 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="565" height="800" alt="Fashion illustration of a figure in a long pink dress, drawn in Adobe Illustrator." loading="lazy" decoding="async">
+            </div>
+            <span class="teaser-copy">
+              <span class="work-tag">Illustration</span>
+              <strong>Hand drawing, Illustrator and Clip Studio Paint.</strong>
+            </span>
+          </a>
+          <a class="teaser" href="/tech-packs/">
+            <div class="frame" style="--tone:#dededd; --w: 1600px">
+              <!-- placeholder from PDF, replace with Drive original -->
+              <picture>
+            <source type="image/avif" srcset="/images/tech/bustier-800.avif 800w, /images/tech/bustier-1600.avif 1600w" sizes="5.75rem">
+            <source type="image/webp" srcset="/images/tech/bustier-800.webp 800w, /images/tech/bustier-1600.webp 1600w" sizes="5.75rem">
+            <img src="/images/tech/bustier-800.jpg" srcset="/images/tech/bustier-800.jpg 800w, /images/tech/bustier-1600.jpg 1600w" sizes="5.75rem" width="1600" height="900" alt="Tech pack spread for a bustier corset top and peplum, with flats and measurements." loading="lazy" decoding="async">
           </picture>
-          </button>
-          <figcaption>Adobe Illustrator</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#dcdacb" data-lightbox-group="illustration" data-caption="Adobe Illustrator" data-full="/images/illus/ai-03-565.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/ai-03-480.avif 480w, /images/illus/ai-03-565.avif 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/ai-03-480.webp 480w, /images/illus/ai-03-565.webp 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/ai-03-565.jpg" srcset="/images/illus/ai-03-480.jpg 480w, /images/illus/ai-03-565.jpg 565w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="565" height="800" alt="Fashion illustration of a figure in a pink top and olive skirt, drawn in Adobe Illustrator." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Adobe Illustrator</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#7f7f7f" data-lightbox-group="illustration" data-caption="Clip Studio Paint" data-full="/images/illus/csp-01-509.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/csp-01-480.avif 480w, /images/illus/csp-01-509.avif 509w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/csp-01-480.webp 480w, /images/illus/csp-01-509.webp 509w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/csp-01-509.jpg" srcset="/images/illus/csp-01-480.jpg 480w, /images/illus/csp-01-509.jpg 509w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="509" height="720" alt="Digital portrait drawn in Clip Studio Paint." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Clip Studio Paint</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#a57268" data-lightbox-group="illustration" data-caption="Clip Studio Paint" data-full="/images/illus/csp-02-540.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/csp-02-480.avif 480w, /images/illus/csp-02-540.avif 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/csp-02-480.webp 480w, /images/illus/csp-02-540.webp 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/csp-02-540.jpg" srcset="/images/illus/csp-02-480.jpg 480w, /images/illus/csp-02-540.jpg 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="540" height="720" alt="Colour digital illustration made in Clip Studio Paint." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Clip Studio Paint</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#b4b4b4" data-lightbox-group="illustration" data-caption="Clip Studio Paint" data-full="/images/illus/csp-03-540.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/csp-03-480.avif 480w, /images/illus/csp-03-540.avif 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/csp-03-480.webp 480w, /images/illus/csp-03-540.webp 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/csp-03-540.jpg" srcset="/images/illus/csp-03-480.jpg 480w, /images/illus/csp-03-540.jpg 540w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="540" height="720" alt="Further digital drawing made in Clip Studio Paint." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Clip Studio Paint</figcaption>
-        </figure>
-        </div>
-        <div class="wide">
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#9d8a8d" data-lightbox-group="illustration" data-caption="Hand drawing" data-full="/images/illus/draw-01-800.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/draw-01-480.avif 480w, /images/illus/draw-01-800.avif 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/draw-01-480.webp 480w, /images/illus/draw-01-800.webp 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/draw-01-800.jpg" srcset="/images/illus/draw-01-480.jpg 480w, /images/illus/draw-01-800.jpg 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="800" height="570" alt="Hand drawing with layered linework and cross-hatching." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Hand drawing</figcaption>
-        </figure>
-        </div>
-        <div class="wide">
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#b1b4c4" data-lightbox-group="illustration" data-caption="Hand drawing" data-full="/images/illus/draw-02-800.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/draw-02-480.avif 480w, /images/illus/draw-02-800.avif 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/draw-02-480.webp 480w, /images/illus/draw-02-800.webp 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/draw-02-800.jpg" srcset="/images/illus/draw-02-480.jpg 480w, /images/illus/draw-02-800.jpg 800w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="800" height="545" alt="Hand drawing developed beside the digital studies." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Hand drawing</figcaption>
-        </figure>
-        </div>
-        <div class="wide">
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#a2a4a4" data-lightbox-group="illustration" data-caption="Adobe Photoshop" data-full="/images/illus/ps-01-720.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/ps-01-480.avif 480w, /images/illus/ps-01-720.avif 720w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/ps-01-480.webp 480w, /images/illus/ps-01-720.webp 720w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/ps-01-720.jpg" srcset="/images/illus/ps-01-480.jpg 480w, /images/illus/ps-01-720.jpg 720w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="720" height="509" alt="Adobe Photoshop composition." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Adobe Photoshop</figcaption>
-        </figure>
-        </div>
-        <div>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#3f372f" data-lightbox-group="illustration" data-caption="Pencil study" data-full="/images/illus/ps-02-430.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/illus/ps-02-430.avif 430w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/illus/ps-02-430.webp 430w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw">
-            <img src="/images/illus/ps-02-430.jpg" srcset="/images/illus/ps-02-430.jpg 430w" sizes="(min-width: 1000px) 30vw, (min-width: 720px) 46vw, 100vw" width="430" height="605" alt="Red pencil study of a head in profile, with the face divided into sections." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Pencil study</figcaption>
-        </figure>
-        </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="tech-packs">
-      <div class="wrap-wide">
-        <header class="section-head" data-reveal>
-          <p class="section-label">04 — Specification</p>
-          <h2>Tech packs</h2>
-          <p class="lede">Flats, measurements and construction notes for a bustier corset top with peplum, and an avant-garde tech pack.</p>
-        </header>
-        <div class="tech-grid">
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#dededd" data-lightbox-group="tech" data-caption="Bustier corset top and peplum" data-full="/images/tech/bustier-1600.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/tech/bustier-800.avif 800w, /images/tech/bustier-1600.avif 1600w" sizes="(min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/tech/bustier-800.webp 800w, /images/tech/bustier-1600.webp 1600w" sizes="(min-width: 720px) 46vw, 100vw">
-            <img src="/images/tech/bustier-1600.jpg" srcset="/images/tech/bustier-800.jpg 800w, /images/tech/bustier-1600.jpg 1600w" sizes="(min-width: 720px) 46vw, 100vw" width="1600" height="900" alt="Tech pack spread for a bustier corset top and peplum, with flats and measurements." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Bustier corset top and peplum</figcaption>
-        </figure>
-          <figure class="shot-figure">
-          <button type="button" class="shot" style="--tone:#dad9d8" data-lightbox-group="tech" data-caption="Avant-garde tech pack" data-full="/images/tech/avant-1600.webp">
-            <picture>
-            <source type="image/avif" srcset="/images/tech/avant-800.avif 800w, /images/tech/avant-1600.avif 1600w" sizes="(min-width: 720px) 46vw, 100vw">
-            <source type="image/webp" srcset="/images/tech/avant-800.webp 800w, /images/tech/avant-1600.webp 1600w" sizes="(min-width: 720px) 46vw, 100vw">
-            <img src="/images/tech/avant-1600.jpg" srcset="/images/tech/avant-800.jpg 800w, /images/tech/avant-1600.jpg 1600w" sizes="(min-width: 720px) 46vw, 100vw" width="1600" height="900" alt="Avant-garde tech pack spread with garment flats and specification notes." loading="lazy" decoding="async">
-          </picture>
-          </button>
-          <figcaption>Avant-garde tech pack</figcaption>
-        </figure>
+            </div>
+            <span class="teaser-copy">
+              <span class="work-tag">Tech packs</span>
+              <strong>Flats, measurements and construction notes.</strong>
+            </span>
+          </a>
         </div>
       </div>
     </section>
@@ -1546,7 +1535,7 @@ dialog.lightbox::backdrop {
     <section class="section" id="contact">
       <div class="wrap">
         <header class="section-head" data-reveal>
-          <p class="section-label">05 — Contact</p>
+          <p class="section-label">Contact</p>
           <h2>Fashion, for me, begins with <em>meaning</em>.</h2>
           <p class="lede">For a studio conversation, a collaboration, or the full portfolio.</p>
         </header>
@@ -1558,6 +1547,7 @@ dialog.lightbox::backdrop {
               <li><a href="https://www.behance.net/janukidesilva">Behance <span>Portfolio</span></a></li>
             </ul>
             <a class="btn-ghost" href="/portfolio/Januki-De-Silva-Portfolio.pdf">Download portfolio (PDF)</a>
+            <p class="secondary-link"><a href="https://www.instagram.com/cele.stia_7/">Illustration Instagram</a></p>
           </div>
           <form id="contact-form" class="form" action="#" data-reveal>
             <div class="field">
@@ -1597,24 +1587,6 @@ dialog.lightbox::backdrop {
   </footer>
   <a class="to-top btn-ghost" href="#top">Back to top</a>
 
-
-  <dialog id="lightbox" class="lightbox" aria-label="Expanded image">
-    <div class="lightbox-bar">
-      <p id="lightbox-count" aria-hidden="true"></p>
-      <button class="icon-btn" type="button" data-lightbox-close>Close</button>
-    </div>
-    <div class="lightbox-stage">
-      <button class="icon-btn" type="button" data-lightbox-prev>Previous</button>
-      <picture>
-        <source id="lightbox-avif" type="image/avif">
-        <source id="lightbox-webp" type="image/webp">
-        <img id="lightbox-img" alt="" width="1600" height="900">
-      </picture>
-      <button class="icon-btn" type="button" data-lightbox-next>Next</button>
-    </div>
-    <p id="lightbox-caption" class="lightbox-caption" aria-live="polite"></p>
-  </dialog>
   <script type="module" src="/js/main.js"></script>
 </body>
 </html>
-
